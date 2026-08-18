@@ -1,0 +1,152 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* Sticky header height, so #anchor links don't land under the bar. */
+    scroll-padding-top: 6rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-surface-paper text-ink font-sans text-body antialiased;
+    font-feature-settings: 'kern' 1;
+  }
+
+  /* font-semibold is the only display weight loaded, so make it the heading
+     default — a heading with no explicit weight can then never ask for a face
+     that was never downloaded. */
+  h1, h2, h3, h4 {
+    @apply font-display font-semibold;
+    text-wrap: balance;
+  }
+
+  p { text-wrap: pretty; }
+
+  /* Focus must survive every theme and every animation. */
+  :focus-visible {
+    outline: 3px solid #00C6E8;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  /* Only suppress the default ring where we draw our own. */
+  .focus-ring-none:focus-visible { outline: none; }
+
+  ::selection { background: #BBD5F8; color: #0A1E42; }
+}
+
+@layer components {
+  .container-page { @apply mx-auto w-full max-w-content px-5 sm:px-6 lg:px-8 2xl:max-w-[1320px]; }
+
+  /* ---------- One button language: same radius, same 200ms, same lift ---------- */
+  .btn {
+    /* min-h keeps every CTA at a 46px touch target; text-btn's 1.0 line-height
+       otherwise lands them at 39px, under the 44px minimum. */
+    @apply inline-flex min-h-[46px] items-center justify-center gap-2 rounded-pill px-6 py-3 text-btn;
+    @apply transition-[background-color,border-color,color,box-shadow,transform] duration-200 ease-entrance;
+    @apply active:translate-y-px;
+  }
+  .btn-primary  { @apply btn bg-brand-navy text-white shadow-card hover:bg-brand-700 hover:shadow-lift hover:-translate-y-0.5 active:translate-y-0; }
+  .btn-accent   { @apply btn bg-brand-blue text-white shadow-card hover:bg-[#005E96] hover:shadow-lift hover:-translate-y-0.5 active:translate-y-0; }
+  .btn-onbrand  { @apply btn bg-white text-brand-navy shadow-card hover:bg-brand-50 hover:shadow-lift hover:-translate-y-0.5 active:translate-y-0; }
+  .btn-ghost    { @apply btn border border-white/45 text-white hover:border-white hover:bg-white/12; }
+  .btn-outline  { @apply btn border border-line-strong bg-white text-ink hover:border-brand-navy hover:text-brand-navy hover:shadow-card; }
+  .btn-quiet    { @apply btn px-3 py-2 text-brand-navy hover:bg-brand-50; }
+
+  /* ---------- Cards share the button's radius family and shadow ramp ---------- */
+  .card {
+    @apply rounded-card border border-line bg-surface p-6 shadow-card sm:p-7;
+    @apply transition-[box-shadow,transform,border-color] duration-200 ease-entrance;
+  }
+  .card-hover { @apply card hover:-translate-y-1 hover:border-brand-200 hover:shadow-lift; }
+
+  /* ---------- Form fields: same radius, same focus, generous tap target ---------- */
+  .field {
+    @apply w-full rounded-field border border-line-strong bg-white px-4 py-3 text-body text-ink shadow-field;
+    @apply placeholder:text-ink-muted;
+    @apply transition-[border-color,box-shadow] duration-200 ease-entrance;
+  }
+  .field:hover { @apply border-brand-300; }
+  .field:focus { @apply border-brand-navy shadow-[0_0_0_3px_rgba(23,64,166,.14)]; outline: none; }
+  .field-label { @apply mb-1.5 block text-[0.9375rem] font-semibold text-ink; }
+
+  /* ---------- Type helpers ---------- */
+  .eyebrow { @apply inline-flex items-center gap-2 text-label uppercase text-brand-blue; }
+  .eyebrow::before {
+    content: '';
+    @apply inline-block h-px w-6 bg-rule-gradient;
+  }
+  .eyebrow-plain { @apply inline-block text-label uppercase text-brand-blue; }
+
+  .h-hero    { @apply text-h1 sm:text-[3rem] lg:text-[3.25rem] 2xl:text-h1-lg font-semibold; }
+  .h-section { @apply mt-3 text-h2 lg:text-h2-lg font-semibold text-brand-deep; }
+  .lede      { @apply mt-4 text-lede lg:text-lede-lg text-ink-soft; }
+
+  /* Numbers must not reflow while they animate. */
+  .tabular { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; }
+
+  /* ---------- Long-form legal pages ---------- */
+  .prose-legal { @apply max-w-prose; }
+  .prose-legal h2 { @apply mt-12 mb-3 font-display text-[1.375rem] font-semibold text-brand-deep first:mt-0; }
+  .prose-legal h3 { @apply mt-8 mb-2 font-sans text-h3 text-ink; }
+  .prose-legal p  { @apply mb-4 text-body text-ink-soft; }
+  .prose-legal ul { @apply mb-5 space-y-2 pl-0; }
+  .prose-legal li { @apply relative pl-6 text-body text-ink-soft; }
+  .prose-legal li::before { @apply absolute left-0 top-[11px] h-1.5 w-1.5 rounded-full bg-brand-bright content-['']; }
+  .prose-legal a  { @apply font-semibold text-brand-blue underline underline-offset-2 hover:text-brand-navy; }
+  .prose-legal strong { @apply font-semibold text-ink; }
+  /* The source markup ends some sections with two bare sibling links; without
+     this they render flush against each other. */
+  .prose-legal a + a { @apply ml-5; }
+}
+
+@layer utilities {
+  /* Hairline in the brand gradient — used to separate dark sections. */
+  .rule-brand { @apply h-px w-full bg-rule-gradient; }
+}
+
+/* =====================================================================
+   Scroll reveal
+   Elements are only hidden once JS has confirmed it is running, so a
+   failed bundle leaves every section fully readable instead of blank.
+   ===================================================================== */
+html[data-js='on'] .reveal {
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  will-change: opacity, transform;
+}
+html[data-js='on'] .reveal-left  { transform: translate3d(-18px, 0, 0); }
+html[data-js='on'] .reveal-scale { transform: translate3d(0, 12px, 0) scale(.985); }
+
+html[data-js='on'] .reveal.is-in {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity .5s cubic-bezier(.22, .61, .36, 1),
+    transform .5s cubic-bezier(.22, .61, .36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: auto;
+}
+
+/* =====================================================================
+   Reduced motion: land on the final state, keep every focus ring.
+   ===================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  html[data-js='on'] .reveal,
+  html[data-js='on'] .reveal.is-in {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
